@@ -28,7 +28,9 @@ void foo() {
   assert(i == 3);
 }
 ```
-For the rest, please check the test.cpp.
+You can also call private member functions and static private functions.
+You can also access static private variables, if they are defined out-of-class.
+For detailed usage, please check test.cpp.
 
 # How is it working?
 The ISO C++ standard specifies that there is no access check in case of explicit
@@ -48,4 +50,6 @@ References:
 ## Soft Limitations
 * We cannot access nested members, and `static`s. Though, this could be implemented by sacrificing usage simplicity.
 
-
+## Future
+I think it would be filling a gap if we could have out-of-class friend declarations in C++, though the committee might not agree with me.
+Nevertheless, this can be implemented fairly easy, see https://github.com/martong/clang/tree/out-of-class_friend_attr .
