@@ -24,7 +24,7 @@ public:
 };
 int A::s_i = 404;
 // Because we are using a pointer in the implementation, we need to explicitly
-// define the const static variable as well :(
+// define the const static variable as well, otherwise we'll have linker error.
 const int A::s_ci;
 
 class C {
