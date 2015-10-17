@@ -14,17 +14,19 @@ template <typename Tag, typename PtrType> struct private_cast_helper {
 
 } // namespace detail
 
-#define __ACCESS_PRIVATE(Class, Type, Name)                                    \
+// @param PtrTypeKind E.g if we have "class A", then it can be "A::*" in case of
+// members, or it can be "*" in case of statics.
+#define _ACCESS_PRIVATE(Class, Type, Name, PtrTypeKind)                        \
   namespace detail {                                                           \
   using Class##_##Name##_alias = Type;                                         \
   struct Class##_##Name                                                        \
-      : private_cast_helper<Class##_##Name, Class##_##Name##_alias Class::*> { \
-  };                                                                           \
+      : private_cast_helper<Class##_##Name,                                    \
+                            Class##_##Name##_alias PtrTypeKind> {};            \
   template struct private_cast<Class##_##Name, &Class::Name>;                  \
   }
 
 #define ACCESS_PRIVATE_FIELD(Class, Type, Name)                                \
-  __ACCESS_PRIVATE(Class, Type, Name)                                          \
+  _ACCESS_PRIVATE(Class, Type, Name, Class::*)                                 \
   namespace access_member {                                                    \
   Type &Name(Class &&t) { return t.*get(detail::Class##_##Name{}); }           \
   Type &Name(Class &t) { return t.*get(detail::Class##_##Name{}); }            \
@@ -34,7 +36,7 @@ template <typename Tag, typename PtrType> struct private_cast_helper {
   }
 
 #define ACCESS_PRIVATE_FUN(Class, Type, Name)                                  \
-  __ACCESS_PRIVATE(Class, Type, Name)                                          \
+  _ACCESS_PRIVATE(Class, Type, Name, Class::*)                                 \
   namespace call_member {                                                      \
   template <typename Obj,                                                      \
             std::enable_if_t<std::is_same<std::remove_reference_t<Obj>,        \
@@ -46,16 +48,8 @@ template <typename Tag, typename PtrType> struct private_cast_helper {
   }                                                                            \
   }
 
-#define __ACCESS_PRIVATE_STATIC(Class, Type, Name)                             \
-  namespace detail {                                                           \
-  using Class##_##Name##_alias = Type;                                         \
-  struct Class##_##Name                                                        \
-      : private_cast_helper<Class##_##Name, Class##_##Name##_alias *> {};      \
-  template struct private_cast<Class##_##Name, &Class::Name>;                  \
-  }
-
 #define ACCESS_PRIVATE_STATIC_FIELD(Class, Type, Name)                         \
-  __ACCESS_PRIVATE_STATIC(Class, Type, Name)                                   \
+  _ACCESS_PRIVATE(Class, Type, Name, *)                                        \
   namespace access_static {                                                    \
   namespace Class {                                                            \
   Type &Name() { return *get(detail::Class##_##Name{}); }                      \
@@ -63,7 +57,7 @@ template <typename Tag, typename PtrType> struct private_cast_helper {
   }
 
 #define ACCESS_PRIVATE_STATIC_FUN(Class, Type, Name)                           \
-  __ACCESS_PRIVATE_STATIC(Class, Type, Name)                                   \
+  _ACCESS_PRIVATE(Class, Type, Name, *)                                        \
   namespace call_static {                                                      \
   namespace Class {                                                            \
   template <typename... Args> auto Name(Args &&... args) {                     \
