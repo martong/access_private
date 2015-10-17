@@ -8,7 +8,8 @@ The reasons behind that might be the following:
   * It is part of a third party software package and
     * Our build system would overwrite the changes we made
     * We don't want to maintain our own version
-  * Touching the internals would require tremendous amount of recompilation of client codes, which might not be desired
+  * Touching the internals would require tremendous amount of recompilation of client codes, which might not be desired.
+
 Why not use `#define private public`?
 Because that's undefined behaviour.
 The C++ standard states that the relative order of members in a class with different access specifiers is undefined.
