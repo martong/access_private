@@ -3,22 +3,22 @@
 
 namespace detail {
 
-template <typename Tag, typename Tag::type x> struct private_cast {
-  friend typename Tag::type get(Tag) { return x; }
+template <typename Tag, typename Tag::ptr_type PtrValue> struct private_cast {
+  friend typename Tag::ptr_type get(Tag) { return PtrValue; }
 };
 
-template <typename Tag, typename Member> struct private_cast_helper {
-  using type = Member;
-  friend type get(Tag);
+template <typename Tag, typename PtrType> struct private_cast_helper {
+  using ptr_type = PtrType;
+  friend ptr_type get(Tag);
 };
 
 } // namespace detail
 
 #define __ACCESS_PRIVATE(Class, Type, Name)                                    \
   namespace detail {                                                           \
-  using Class##_##Name##_sign = Type;                                          \
+  using Class##_##Name##_alias = Type;                                         \
   struct Class##_##Name                                                        \
-      : private_cast_helper<Class##_##Name, Class##_##Name##_sign Class::*> {  \
+      : private_cast_helper<Class##_##Name, Class##_##Name##_alias Class::*> { \
   };                                                                           \
   template struct private_cast<Class##_##Name, &Class::Name>;                  \
   }
@@ -48,9 +48,9 @@ template <typename Tag, typename Member> struct private_cast_helper {
 
 #define __ACCESS_PRIVATE_STATIC(Class, Type, Name)                             \
   namespace detail {                                                           \
-  using Class##_##Name##_sign = Type;                                          \
+  using Class##_##Name##_alias = Type;                                         \
   struct Class##_##Name                                                        \
-      : private_cast_helper<Class##_##Name, Class##_##Name##_sign *> {};       \
+      : private_cast_helper<Class##_##Name, Class##_##Name##_alias *> {};      \
   template struct private_cast<Class##_##Name, &Class::Name>;                  \
   }
 
