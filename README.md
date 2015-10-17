@@ -48,7 +48,7 @@ References:
 * We have a link time error in case of only in-class declared `const static` variables. That's because we'd take the address of that, and if that is not defined (i.e the compiler do a compile-time insert of the const value), we'd have an undefined symbol.
 
 ## Soft Limitations
-* We cannot access nested members, and `static`s. Though, this could be implemented by sacrificing usage simplicity.
+* We cannot access the private members and `static`s of a nested class. Though, this could be implemented by sacrificing usage simplicity.
 
 # Future
 I think it would be filling a gap if we could have out-of-class friend declarations in C++, though the committee might not agree with me.
