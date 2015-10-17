@@ -50,6 +50,6 @@ References:
 ## Soft Limitations
 * We cannot access nested members, and `static`s. Though, this could be implemented by sacrificing usage simplicity.
 
-## Future
+# Future
 I think it would be filling a gap if we could have out-of-class friend declarations in C++, though the committee might not agree with me.
 Nevertheless, this can be implemented fairly easy, see https://github.com/martong/clang/tree/out-of-class_friend_attr .
