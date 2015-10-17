@@ -42,10 +42,10 @@ References:
 
 ## Hard Limitations
 * We cannot access private types.
-* We cannot call private constructor / destructor.
+* We cannot call private constructors / destructors.
 * We have a link time error in case of only in-class declared `const static` variables. That's because we'd take the address of that, and if that is not defined (i.e the compiler do a compile-time insert of the const value), we'd have an undefined symbol.
 
 ## Soft Limitations
-* We cannot access nested members, and statics. Though, this could be implemented by sacrificing usage simplicity.
+* We cannot access nested members, and `static`s. Though, this could be implemented by sacrificing usage simplicity.
 
 
