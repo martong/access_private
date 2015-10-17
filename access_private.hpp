@@ -27,7 +27,7 @@ template <typename Tag, typename PtrType> struct private_cast_helper {
 
 #define ACCESS_PRIVATE_FIELD(Class, Type, Name)                                \
   _ACCESS_PRIVATE(Class, Type, Name, Class::*)                                 \
-  namespace access_member {                                                    \
+  namespace access_private {                                                   \
   Type &Name(Class &&t) { return t.*get(detail::Class##_##Name{}); }           \
   Type &Name(Class &t) { return t.*get(detail::Class##_##Name{}); }            \
   const Type &Name(const Class &t) {                                           \
@@ -37,7 +37,7 @@ template <typename Tag, typename PtrType> struct private_cast_helper {
 
 #define ACCESS_PRIVATE_FUN(Class, Type, Name)                                  \
   _ACCESS_PRIVATE(Class, Type, Name, Class::*)                                 \
-  namespace call_member {                                                      \
+  namespace call_private {                                                     \
   template <typename Obj,                                                      \
             std::enable_if_t<std::is_same<std::remove_reference_t<Obj>,        \
                                           Class>::value> * = nullptr,          \
@@ -50,7 +50,7 @@ template <typename Tag, typename PtrType> struct private_cast_helper {
 
 #define ACCESS_PRIVATE_STATIC_FIELD(Class, Type, Name)                         \
   _ACCESS_PRIVATE(Class, Type, Name, *)                                        \
-  namespace access_static {                                                    \
+  namespace access_private_static {                                            \
   namespace Class {                                                            \
   Type &Name() { return *get(detail::Class##_##Name{}); }                      \
   }                                                                            \
@@ -58,7 +58,7 @@ template <typename Tag, typename PtrType> struct private_cast_helper {
 
 #define ACCESS_PRIVATE_STATIC_FUN(Class, Type, Name)                           \
   _ACCESS_PRIVATE(Class, Type, Name, *)                                        \
-  namespace call_static {                                                      \
+  namespace call_private_static {                                              \
   namespace Class {                                                            \
   template <typename... Args> auto Name(Args &&... args) {                     \
     return get(detail::Class##_##Name{})(std::forward<Args>(args)...);         \
