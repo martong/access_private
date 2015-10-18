@@ -27,11 +27,16 @@ int A::s_i = 404;
 // define the const static variable as well, otherwise we'll have linker error.
 const int A::s_ci;
 
-class C {
-  class C2 {
-    static int g(int) { return 45; }
+namespace NS {
+class B {
+  int m_i = 3;
+public:
+  class C {
+    int m_i = 3;
   };
 };
+} // NS
+
 
 ACCESS_PRIVATE_FIELD(A, int, m_i)
 void test_access_private_in_lvalue_expr() {
@@ -78,6 +83,20 @@ void test_call_private_static() {
   ASSERT(l == 5);
 }
 
+ACCESS_PRIVATE_FIELD(NS::B, int, m_i)
+void test_access_private_in_class_in_namespace() {
+  NS::B b;
+  auto &i = access_private::m_i(b);
+  ASSERT(i == 3);
+}
+
+ACCESS_PRIVATE_FIELD(NS::B::C, int, m_i)
+void test_access_private_in_nested_class() {
+  NS::B b;
+  auto &i = access_private::m_i(b);
+  ASSERT(i == 3);
+}
+
 int main() {
   test_access_private_in_lvalue_expr();
   test_access_private_in_rvalue_expr();
@@ -86,6 +105,8 @@ int main() {
   test_access_private_static();
   test_access_private_static_const();
   test_call_private_static();
+  test_access_private_in_class_in_namespace();
+  test_access_private_in_nested_class();
   printf("OK\n");
   return 0;
 }
