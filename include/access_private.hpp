@@ -87,19 +87,20 @@ struct private_cast {
   }                                                                            \
   }
 
-#define CONCATENATE_DETAIL(x, y) x##y
-#define CONCATENATE(x, y) CONCATENATE_DETAIL(x, y)
-#define UNIQUE(x) CONCATENATE(x, __COUNTER__)
+#define _PRIVATE_ACCESS_CONCATENATE_DETAIL(x, y) x##y
+#define _PRIVATE_ACCESS_CONCATENATE(x, y)                                      \
+  _PRIVATE_ACCESS_CONCATENATE_DETAIL(x, y)
+#define _PRIVATE_ACCESS_UNIQUE(x) _PRIVATE_ACCESS_CONCATENATE(x, __COUNTER__)
 
 #define ACCESS_PRIVATE_FIELD(Class, Type, Name)                                \
-  _ACCESS_PRIVATE_FIELD(UNIQUE(Tag), Class, Type, Name)
+  _ACCESS_PRIVATE_FIELD(_PRIVATE_ACCESS_UNIQUE(Tag), Class, Type, Name)
 
 #define ACCESS_PRIVATE_FUN(Class, Type, Name)                                  \
-  _ACCESS_PRIVATE_FUN(UNIQUE(Tag), Class, Type, Name)
+  _ACCESS_PRIVATE_FUN(_PRIVATE_ACCESS_UNIQUE(Tag), Class, Type, Name)
 
 #define ACCESS_PRIVATE_STATIC_FIELD(Class, Type, Name)                         \
-  _ACCESS_PRIVATE_STATIC_FIELD(UNIQUE(Tag), Class, Type, Name)
+  _ACCESS_PRIVATE_STATIC_FIELD(_PRIVATE_ACCESS_UNIQUE(Tag), Class, Type, Name)
 
 #define ACCESS_PRIVATE_STATIC_FUN(Class, Type, Name)                           \
-  _ACCESS_PRIVATE_STATIC_FUN(UNIQUE(Tag), Class, Type, Name)
+  _ACCESS_PRIVATE_STATIC_FUN(_PRIVATE_ACCESS_UNIQUE(Tag), Class, Type, Name)
 
