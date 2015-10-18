@@ -3,6 +3,8 @@
 
 namespace detail {
 
+// @tparam TagType, used to declare different "get" funciton overloads for
+// different members/statics
 template <typename PtrType, PtrType PtrValue, typename TagType>
 struct private_cast {
   // Normal lookup cannot find in-class defined (inline) friend functions.
