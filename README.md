@@ -15,7 +15,7 @@ Because that's undefined behaviour.
 The C++ standard states that the relative order of members in a class with different access specifiers is undefined.
 
 # Usage
-```
+```c++
 class A {
   int m_i = 3;
 };
@@ -30,9 +30,9 @@ void foo() {
 ```
 You can also call private member functions and static private functions.
 You can also access static private variables, if they are defined out-of-class.
-For detailed usage, please check test.cpp.
+For detailed usage, please check `test.cpp`.
 
-# How is it working?
+# How does it work?
 The ISO C++ standard specifies that there is no access check in case of explicit
 template instantiations (C++14 / 14.7.2 para 12).
 We can exploit this by defining a static pointer to member (or a friend function), which holds (returns) the address of the private member.
