@@ -27,17 +27,6 @@ int A::s_i = 404;
 // define the const static variable as well, otherwise we'll have linker error.
 const int A::s_ci;
 
-namespace NS {
-class B {
-  int m_i = 3;
-public:
-  class C {
-    int m_i = 3;
-  };
-};
-} // NS
-
-
 ACCESS_PRIVATE_FIELD(A, int, m_i)
 void test_access_private_in_lvalue_expr() {
   A a;
@@ -83,6 +72,16 @@ void test_call_private_static() {
   ASSERT(l == 5);
 }
 
+namespace NS {
+class B {
+  int m_i = 3;
+public:
+  class C {
+    int m_i = 3;
+  };
+};
+} // NS
+
 ACCESS_PRIVATE_FIELD(NS::B, int, m_i)
 void test_access_private_in_class_in_namespace() {
   NS::B b;
@@ -97,6 +96,32 @@ void test_access_private_in_nested_class() {
   ASSERT(i == 3);
 }
 
+class C {
+  const int m_i = 3;
+};
+ACCESS_PRIVATE_FIELD(C, const int, m_i)
+void test_access_private_const_member() {
+  C c;
+  auto &i = access_private::m_i(c);
+  // should not deduce to int&
+  static_assert(std::is_same<const int&, decltype(i)>::value, "");
+  ASSERT(i == 3);
+}
+
+class CA {
+  int m_i = 3;
+  public:
+  CA(){}
+};
+ACCESS_PRIVATE_FIELD(CA, int, m_i)
+void test_access_private_const_object(){
+  const CA ca;
+  auto &i = access_private::m_i(ca);
+  // should not deduce to int&
+  static_assert(std::is_same<const int&, decltype(i)>::value, "");
+  ASSERT(i == 3);
+}
+
 int main() {
   test_access_private_in_lvalue_expr();
   test_access_private_in_rvalue_expr();
@@ -107,6 +132,8 @@ int main() {
   test_call_private_static();
   test_access_private_in_class_in_namespace();
   test_access_private_in_nested_class();
+  test_access_private_const_member();
+  test_access_private_const_object();
   printf("OK\n");
   return 0;
 }
