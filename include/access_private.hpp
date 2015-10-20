@@ -17,6 +17,10 @@ struct private_cast {
 } // namespace detail
 } // namespace
 
+#define _PRIVATE_ACCESS_CONCATENATE_DETAIL(x, y) x##y
+#define _PRIVATE_ACCESS_CONCATENATE(x, y)                                      \
+  _PRIVATE_ACCESS_CONCATENATE_DETAIL(x, y)
+
 // @param PtrTypeKind E.g if we have "class A", then it can be "A::*" in case of
 // members, or it can be "*" in case of statics.
 // Class##_##Name is used as a compile-time Tag (type).
@@ -30,13 +34,14 @@ struct private_cast {
   template struct private_cast<decltype(&Class::Name), &Class::Name, Tag>;     \
   /* We can build the PtrType only with two aliases */                         \
   /* E.g. using PtrType = int(int) *; would be illformed */                    \
-  using Alias_##Tag = Type;                                                    \
-  using PtrType_##Tag = Alias_##Tag PtrTypeKind;                               \
+  using _PRIVATE_ACCESS_CONCATENATE(Alias_, Tag) = Type;                       \
+  using _PRIVATE_ACCESS_CONCATENATE(PtrType_, Tag) =                           \
+      _PRIVATE_ACCESS_CONCATENATE(Alias_, Tag) PtrTypeKind;                    \
   /* Declare the friend function, now it is visible in namespace scope. Note,  \
    * we could declare it inside the Tag type too, in that case ADL would find  \
    * the declaration. By choosing to declare it here, the Tag type remains a   \
    * simple tag type, it has no other responsibilities. */                     \
-  PtrType_##Tag get(Tag);                                                      \
+  _PRIVATE_ACCESS_CONCATENATE(PtrType_, Tag) get(Tag);                         \
   }                                                                            \
   }
 
@@ -46,7 +51,14 @@ struct private_cast {
   namespace access_private {                                                   \
   Type &Name(Class &&t) { return t.*get(detail::Tag{}); }                      \
   Type &Name(Class &t) { return t.*get(detail::Tag{}); }                       \
-  const Type &Name(const Class &t) { return t.*get(detail::Tag{}); }           \
+  /* The following usings are here to avoid duplicate const qualifier warnings \
+   */                                                                          \
+  using _PRIVATE_ACCESS_CONCATENATE(X, Tag) = Type;                            \
+  using _PRIVATE_ACCESS_CONCATENATE(Y, Tag) =                                  \
+      const _PRIVATE_ACCESS_CONCATENATE(X, Tag);                               \
+  _PRIVATE_ACCESS_CONCATENATE(Y, Tag) & Name(const Class &t) {                 \
+    return t.*get(detail::Tag{});                                              \
+  }                                                                            \
   }                                                                            \
   }
 
@@ -87,9 +99,6 @@ struct private_cast {
   }                                                                            \
   }
 
-#define _PRIVATE_ACCESS_CONCATENATE_DETAIL(x, y) x##y
-#define _PRIVATE_ACCESS_CONCATENATE(x, y)                                      \
-  _PRIVATE_ACCESS_CONCATENATE_DETAIL(x, y)
 #define _PRIVATE_ACCESS_UNIQUE(x) _PRIVATE_ACCESS_CONCATENATE(x, __COUNTER__)
 
 #define ACCESS_PRIVATE_FIELD(Class, Type, Name)                                \
