@@ -63,6 +63,7 @@ void test_access_private_static() {
 ACCESS_PRIVATE_STATIC_FIELD(A, const int, s_ci)
 void test_access_private_static_const() {
   auto &i = access_private_static::A::s_ci();
+  static_assert(std::is_same<const int &, decltype(i)>::value, "");
   ASSERT(i == 403);
 }
 
