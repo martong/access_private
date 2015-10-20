@@ -1,6 +1,15 @@
 #include <utility>
 #include <type_traits>
 
+#if __cplusplus == 201103L
+namespace std {
+template <bool B, class T = void>
+using enable_if_t = typename enable_if<B, T>::type;
+template <class T>
+using remove_reference_t = typename remove_reference<T>::type;
+} // std
+#endif
+
 // Unnamed namespace is used to avoid duplicate symbols if the macros are used
 // in several translation units. See test1.
 namespace {
@@ -70,7 +79,9 @@ struct private_cast {
             std::enable_if_t<std::is_same<std::remove_reference_t<Obj>,        \
                                           Class>::value> * = nullptr,          \
             typename... Args>                                                  \
-  auto Name(Obj &&o, Args &&... args) {                                        \
+  auto Name(Obj &&o, Args &&... args)                                          \
+      -> decltype((std::forward<Obj>(o).*                                      \
+                   get(detail::Tag{}))(std::forward<Args>(args)...)) {         \
     return (std::forward<Obj>(o).*                                             \
             get(detail::Tag{}))(std::forward<Args>(args)...);                  \
   }                                                                            \
@@ -92,7 +103,9 @@ struct private_cast {
   namespace {                                                                  \
   namespace call_private_static {                                              \
   namespace Class {                                                            \
-  template <typename... Args> auto Name(Args &&... args) {                     \
+  template <typename... Args>                                                  \
+  auto Name(Args &&... args)                                                   \
+      -> decltype(get(detail::Tag{})(std::forward<Args>(args)...)) {           \
     return get(detail::Tag{})(std::forward<Args>(args)...);                    \
   }                                                                            \
   }                                                                            \

@@ -46,6 +46,16 @@ References:
 * We cannot call private constructors / destructors.
 * We have a link time error in case of only in-class declared `const static` variables. That's because we'd take the address of that, and if that is not defined (i.e the compiler do a compile-time insert of the const value), we'd have an undefined symbol.
 
+# Compilers
+I have done tests for the following compilers:
+* Apple LLVM version 7.0.0 (clang-700.0.72)
+* GCC
+  * 5.1.0
+  * 4.8.4
+  * 4.7.4
+
+Test code is compiled with -std=c++11 .
+
 # Future
 I think it would be filling a gap if we could have out-of-class friend declarations in C++, though the committee might not agree with me.
 Nevertheless, this can be implemented fairly easy, see https://github.com/martong/clang/tree/out-of-class_friend_attr .

@@ -19,8 +19,8 @@ class A {
   static int s_f(int r) { return r + 1; }
 
 public:
-  const auto &get_m_i() const { return m_i; }
-  static const auto &get_s_i() { return s_i; }
+  const int &get_m_i() const { return m_i; }
+  static const int &get_s_i() { return s_i; }
 };
 int A::s_i = 404;
 // Because we are using a pointer in the implementation, we need to explicitly
@@ -75,6 +75,7 @@ void test_call_private_static() {
 namespace NS {
 class B {
   int m_i = 3;
+
 public:
   class C {
     int m_i = 3;
@@ -104,21 +105,22 @@ void test_access_private_const_member() {
   C c;
   auto &i = access_private::m_i(c);
   // should not deduce to int&
-  static_assert(std::is_same<const int&, decltype(i)>::value, "");
+  static_assert(std::is_same<const int &, decltype(i)>::value, "");
   ASSERT(i == 3);
 }
 
 class CA {
   int m_i = 3;
-  public:
-  CA(){}
+
+public:
+  CA() {}
 };
 ACCESS_PRIVATE_FIELD(CA, int, m_i)
-void test_access_private_const_object(){
+void test_access_private_const_object() {
   const CA ca;
   auto &i = access_private::m_i(ca);
   // should not deduce to int&
-  static_assert(std::is_same<const int&, decltype(i)>::value, "");
+  static_assert(std::is_same<const int &, decltype(i)>::value, "");
   ASSERT(i == 3);
 }
 
