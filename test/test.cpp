@@ -125,6 +125,19 @@ void test_access_private_const_object() {
   ASSERT(i == 3);
 }
 
+template <typename T>
+class TemplateA {
+  T m_i = 3;
+};
+
+ACCESS_PRIVATE_FIELD(TemplateA<int>, int, m_i)
+void test_access_private_template_field() {
+  TemplateA<int> a;
+  auto &i = access_private::m_i(a);
+  ASSERT(i == 3);
+}
+
+
 int main() {
   test_access_private_in_lvalue_expr();
   test_access_private_in_rvalue_expr();
@@ -137,6 +150,7 @@ int main() {
   test_access_private_in_nested_class();
   test_access_private_const_member();
   test_access_private_const_object();
+  test_access_private_template_field();
   printf("OK\n");
   return 0;
 }
