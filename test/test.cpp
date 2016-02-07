@@ -13,7 +13,7 @@
 
 class A {
   int m_i = 3;
-  int m_f(int) { return 42; }
+  int m_f(int p) { return 14 * p; }
   static int s_i;
   static const int s_ci = 403;
   static int s_f(int r) { return r + 1; }
