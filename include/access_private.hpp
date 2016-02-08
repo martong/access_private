@@ -80,6 +80,8 @@ namespace {
   _ACCESS_PRIVATE(Tag, Class, Type, Name, Class::*)                            \
   namespace {                                                                  \
     namespace call_private {                                                   \
+      /* We do perfect forwarding, but we want to restrict the overload set    \
+       * only for objects which have the type Class. */                        \
       template <typename Obj,                                                  \
                 std::enable_if_t<std::is_same<std::remove_reference_t<Obj>,    \
                                               Class>::value> * = nullptr,      \
