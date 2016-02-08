@@ -130,22 +130,22 @@ namespace {
     }                                                                          \
   }
 
-#define PRIVATE_ACCESS_DETAIL_UNIQUE(x)                                        \
-  PRIVATE_ACCESS_DETAIL_CONCATENATE(x, __COUNTER__)
+#define PRIVATE_ACCESS_DETAIL_UNIQUE_TAG                                       \
+  PRIVATE_ACCESS_DETAIL_CONCATENATE(PrivateAccessTag, __COUNTER__)
 
 #define ACCESS_PRIVATE_FIELD(Class, Type, Name)                                \
-  PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE_FIELD(                                  \
-      PRIVATE_ACCESS_DETAIL_UNIQUE(Tag), Class, Type, Name)
+  PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE_FIELD(PRIVATE_ACCESS_DETAIL_UNIQUE_TAG, \
+                                             Class, Type, Name)
 
 #define ACCESS_PRIVATE_FUN(Class, Type, Name)                                  \
-  PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE_FUN(PRIVATE_ACCESS_DETAIL_UNIQUE(Tag),  \
+  PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE_FUN(PRIVATE_ACCESS_DETAIL_UNIQUE_TAG,   \
                                            Class, Type, Name)
 
 #define ACCESS_PRIVATE_STATIC_FIELD(Class, Type, Name)                         \
   PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE_STATIC_FIELD(                           \
-      PRIVATE_ACCESS_DETAIL_UNIQUE(Tag), Class, Type, Name)
+      PRIVATE_ACCESS_DETAIL_UNIQUE_TAG, Class, Type, Name)
 
 #define ACCESS_PRIVATE_STATIC_FUN(Class, Type, Name)                           \
   PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE_STATIC_FUN(                             \
-      PRIVATE_ACCESS_DETAIL_UNIQUE(Tag), Class, Type, Name)
+      PRIVATE_ACCESS_DETAIL_UNIQUE_TAG, Class, Type, Name)
 
