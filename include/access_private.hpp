@@ -18,7 +18,7 @@ namespace {
     // @tparam TagType, used to declare different "get" funciton overloads for
     // different members/statics
     template <typename PtrType, PtrType PtrValue, typename TagType>
-    struct private_cast {
+    struct private_access {
       // Normal lookup cannot find in-class defined (inline) friend functions.
       friend PtrType get(TagType) { return PtrValue; }
     };
@@ -26,14 +26,22 @@ namespace {
   } // namespace detail
 } // namespace
 
-#define _PRIVATE_ACCESS_CONCATENATE_DETAIL(x, y) x##y
-#define _PRIVATE_ACCESS_CONCATENATE(x, y)                                      \
-  _PRIVATE_ACCESS_CONCATENATE_DETAIL(x, y)
+// Used macro naming conventions:
+// The "namespace" of this macro library is PRIVATE_ACCESS, i.e. all
+// macro here has this prefix.
+// All implementation macro, which are not meant to be used directly have the
+// PRIVATE_ACCESS_DETAIL prefix.
+// Some macros have the ABCD_IMPL form, which means they contain the
+// implementation details for the specific ABCD macro.
+
+#define PRIVATE_ACCESS_DETAIL_CONCATENATE_IMPL(x, y) x##y
+#define PRIVATE_ACCESS_DETAIL_CONCATENATE(x, y)                                \
+  PRIVATE_ACCESS_DETAIL_CONCATENATE_IMPL(x, y)
 
 // @param PtrTypeKind E.g if we have "class A", then it can be "A::*" in case of
 // members, or it can be "*" in case of statics.
-// Class##_##Name is used as a compile-time Tag (type).
-#define _ACCESS_PRIVATE(Tag, Class, Type, Name, PtrTypeKind)                   \
+#define PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE(Tag, Class, Type, Name,           \
+                                             PtrTypeKind)                      \
   namespace {                                                                  \
     namespace detail {                                                         \
       /* Tag type, used to declare different get funcitons for different       \
@@ -41,12 +49,13 @@ namespace {
        */                                                                      \
       struct Tag {};                                                           \
       /* Explicit instantiation */                                             \
-      template struct private_cast<decltype(&Class::Name), &Class::Name, Tag>; \
+      template struct private_access<decltype(&Class::Name), &Class::Name,     \
+                                     Tag>;                                     \
       /* We can build the PtrType only with two aliases */                     \
       /* E.g. using PtrType = int(int) *; would be illformed */                \
-      using _PRIVATE_ACCESS_CONCATENATE(Alias_, Tag) = Type;                   \
-      using _PRIVATE_ACCESS_CONCATENATE(PtrType_, Tag) =                       \
-          _PRIVATE_ACCESS_CONCATENATE(Alias_, Tag) PtrTypeKind;                \
+      using PRIVATE_ACCESS_DETAIL_CONCATENATE(Alias_, Tag) = Type;             \
+      using PRIVATE_ACCESS_DETAIL_CONCATENATE(PtrType_, Tag) =                 \
+          PRIVATE_ACCESS_DETAIL_CONCATENATE(Alias_, Tag) PtrTypeKind;          \
       /* Declare the friend function, now it is visible in namespace scope.    \
        * Note,                                                                 \
        * we could declare it inside the Tag type too, in that case ADL would   \
@@ -54,12 +63,12 @@ namespace {
        * the declaration. By choosing to declare it here, the Tag type remains \
        * a                                                                     \
        * simple tag type, it has no other responsibilities. */                 \
-      _PRIVATE_ACCESS_CONCATENATE(PtrType_, Tag) get(Tag);                     \
+      PRIVATE_ACCESS_DETAIL_CONCATENATE(PtrType_, Tag) get(Tag);               \
     }                                                                          \
   }
 
-#define _ACCESS_PRIVATE_FIELD(Tag, Class, Type, Name)                          \
-  _ACCESS_PRIVATE(Tag, Class, Type, Name, Class::*)                            \
+#define PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE_FIELD(Tag, Class, Type, Name)     \
+  PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE(Tag, Class, Type, Name, Class::*)       \
   namespace {                                                                  \
     namespace access_private {                                                 \
       Type &Name(Class &&t) { return t.*get(detail::Tag{}); }                  \
@@ -67,17 +76,17 @@ namespace {
       /* The following usings are here to avoid duplicate const qualifier      \
        * warnings                                                              \
        */                                                                      \
-      using _PRIVATE_ACCESS_CONCATENATE(X, Tag) = Type;                        \
-      using _PRIVATE_ACCESS_CONCATENATE(Y, Tag) =                              \
-          const _PRIVATE_ACCESS_CONCATENATE(X, Tag);                           \
-      _PRIVATE_ACCESS_CONCATENATE(Y, Tag) & Name(const Class &t) {             \
+      using PRIVATE_ACCESS_DETAIL_CONCATENATE(X, Tag) = Type;                  \
+      using PRIVATE_ACCESS_DETAIL_CONCATENATE(Y, Tag) =                        \
+          const PRIVATE_ACCESS_DETAIL_CONCATENATE(X, Tag);                     \
+      PRIVATE_ACCESS_DETAIL_CONCATENATE(Y, Tag) & Name(const Class &t) {       \
         return t.*get(detail::Tag{});                                          \
       }                                                                        \
     }                                                                          \
   }
 
-#define _ACCESS_PRIVATE_FUN(Tag, Class, Type, Name)                            \
-  _ACCESS_PRIVATE(Tag, Class, Type, Name, Class::*)                            \
+#define PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE_FUN(Tag, Class, Type, Name)       \
+  PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE(Tag, Class, Type, Name, Class::*)       \
   namespace {                                                                  \
     namespace call_private {                                                   \
       /* We do perfect forwarding, but we want to restrict the overload set    \
@@ -95,8 +104,9 @@ namespace {
     }                                                                          \
   }
 
-#define _ACCESS_PRIVATE_STATIC_FIELD(Tag, Class, Type, Name)                   \
-  _ACCESS_PRIVATE(Tag, Class, Type, Name, *)                                   \
+#define PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE_STATIC_FIELD(Tag, Class, Type,    \
+                                                          Name)                \
+  PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE(Tag, Class, Type, Name, *)              \
   namespace {                                                                  \
     namespace access_private_static {                                          \
       namespace Class {                                                        \
@@ -105,8 +115,9 @@ namespace {
     }                                                                          \
   }
 
-#define _ACCESS_PRIVATE_STATIC_FUN(Tag, Class, Type, Name)                     \
-  _ACCESS_PRIVATE(Tag, Class, Type, Name, *)                                   \
+#define PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE_STATIC_FUN(Tag, Class, Type,      \
+                                                        Name)                  \
+  PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE(Tag, Class, Type, Name, *)              \
   namespace {                                                                  \
     namespace call_private_static {                                            \
       namespace Class {                                                        \
@@ -119,17 +130,22 @@ namespace {
     }                                                                          \
   }
 
-#define _PRIVATE_ACCESS_UNIQUE(x) _PRIVATE_ACCESS_CONCATENATE(x, __COUNTER__)
+#define PRIVATE_ACCESS_DETAIL_UNIQUE(x)                                        \
+  PRIVATE_ACCESS_DETAIL_CONCATENATE(x, __COUNTER__)
 
 #define ACCESS_PRIVATE_FIELD(Class, Type, Name)                                \
-  _ACCESS_PRIVATE_FIELD(_PRIVATE_ACCESS_UNIQUE(Tag), Class, Type, Name)
+  PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE_FIELD(                                  \
+      PRIVATE_ACCESS_DETAIL_UNIQUE(Tag), Class, Type, Name)
 
 #define ACCESS_PRIVATE_FUN(Class, Type, Name)                                  \
-  _ACCESS_PRIVATE_FUN(_PRIVATE_ACCESS_UNIQUE(Tag), Class, Type, Name)
+  PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE_FUN(PRIVATE_ACCESS_DETAIL_UNIQUE(Tag),  \
+                                           Class, Type, Name)
 
 #define ACCESS_PRIVATE_STATIC_FIELD(Class, Type, Name)                         \
-  _ACCESS_PRIVATE_STATIC_FIELD(_PRIVATE_ACCESS_UNIQUE(Tag), Class, Type, Name)
+  PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE_STATIC_FIELD(                           \
+      PRIVATE_ACCESS_DETAIL_UNIQUE(Tag), Class, Type, Name)
 
 #define ACCESS_PRIVATE_STATIC_FUN(Class, Type, Name)                           \
-  _ACCESS_PRIVATE_STATIC_FUN(_PRIVATE_ACCESS_UNIQUE(Tag), Class, Type, Name)
+  PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE_STATIC_FUN(                             \
+      PRIVATE_ACCESS_DETAIL_UNIQUE(Tag), Class, Type, Name)
 
