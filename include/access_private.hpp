@@ -13,7 +13,7 @@ namespace std {
 // Unnamed namespace is used to avoid duplicate symbols if the macros are used
 // in several translation units. See test1.
 namespace {
-  namespace detail {
+  namespace private_access_detail {
 
     // @tparam TagType, used to declare different "get" funciton overloads for
     // different members/statics
@@ -23,7 +23,7 @@ namespace {
       friend PtrType get(TagType) { return PtrValue; }
     };
 
-  } // namespace detail
+  } // namespace private_access_detail
 } // namespace
 
 // Used macro naming conventions:
@@ -43,7 +43,7 @@ namespace {
 #define PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE(Tag, Class, Type, Name,           \
                                              PtrTypeKind)                      \
   namespace {                                                                  \
-    namespace detail {                                                         \
+    namespace private_access_detail {                                          \
       /* Tag type, used to declare different get funcitons for different       \
        * members                                                               \
        */                                                                      \
@@ -71,8 +71,8 @@ namespace {
   PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE(Tag, Class, Type, Name, Class::*)       \
   namespace {                                                                  \
     namespace access_private {                                                 \
-      Type &Name(Class &&t) { return t.*get(detail::Tag{}); }                  \
-      Type &Name(Class &t) { return t.*get(detail::Tag{}); }                   \
+      Type &Name(Class &&t) { return t.*get(private_access_detail::Tag{}); }   \
+      Type &Name(Class &t) { return t.*get(private_access_detail::Tag{}); }    \
       /* The following usings are here to avoid duplicate const qualifier      \
        * warnings                                                              \
        */                                                                      \
@@ -80,7 +80,7 @@ namespace {
       using PRIVATE_ACCESS_DETAIL_CONCATENATE(Y, Tag) =                        \
           const PRIVATE_ACCESS_DETAIL_CONCATENATE(X, Tag);                     \
       PRIVATE_ACCESS_DETAIL_CONCATENATE(Y, Tag) & Name(const Class &t) {       \
-        return t.*get(detail::Tag{});                                          \
+        return t.*get(private_access_detail::Tag{});                           \
       }                                                                        \
     }                                                                          \
   }
@@ -95,11 +95,11 @@ namespace {
                 std::enable_if_t<std::is_same<std::remove_reference_t<Obj>,    \
                                               Class>::value> * = nullptr,      \
                 typename... Args>                                              \
-      auto Name(Obj &&o, Args &&... args)                                      \
-          -> decltype((std::forward<Obj>(o).*                                  \
-                       get(detail::Tag{}))(std::forward<Args>(args)...)) {     \
-        return (std::forward<Obj>(o).*                                         \
-                get(detail::Tag{}))(std::forward<Args>(args)...);              \
+      auto Name(Obj &&o, Args &&... args) -> decltype(                         \
+          (std::forward<Obj>(o).*                                              \
+           get(private_access_detail::Tag{}))(std::forward<Args>(args)...)) {  \
+        return (std::forward<Obj>(o).*get(private_access_detail::Tag{}))(      \
+            std::forward<Args>(args)...);                                      \
       }                                                                        \
     }                                                                          \
   }
@@ -110,7 +110,7 @@ namespace {
   namespace {                                                                  \
     namespace access_private_static {                                          \
       namespace Class {                                                        \
-        Type &Name() { return *get(detail::Tag{}); }                           \
+        Type &Name() { return *get(private_access_detail::Tag{}); }            \
       }                                                                        \
     }                                                                          \
   }
@@ -122,9 +122,10 @@ namespace {
     namespace call_private_static {                                            \
       namespace Class {                                                        \
         template <typename... Args>                                            \
-        auto Name(Args &&... args)                                             \
-            -> decltype(get(detail::Tag{})(std::forward<Args>(args)...)) {     \
-          return get(detail::Tag{})(std::forward<Args>(args)...);              \
+        auto Name(Args &&... args) -> decltype(                                \
+            get(private_access_detail::Tag{})(std::forward<Args>(args)...)) {  \
+          return get(private_access_detail::Tag{})(                            \
+              std::forward<Args>(args)...);                                    \
         }                                                                      \
       }                                                                        \
     }                                                                          \
