@@ -116,8 +116,13 @@ void test_call_private_in_lvalue_expr() {
   auto res = call_private::m_f(a, p);
   ASSERT(res == 42);
 }
-void test_call_private_in_rvalue_expr() {
+void test_call_private_in_prvalue_expr() {
   auto res = call_private::m_f(A{}, 3);
+  ASSERT(res == 42);
+}
+void test_call_private_in_xvalue_expr() {
+  A a;
+  auto res = call_private::m_f(std::move(a), 3);
   ASSERT(res == 42);
 }
 
@@ -151,7 +156,8 @@ int main() {
   test_access_private_const_member();
   test_access_private_const_object();
   test_access_private_template_field();
-  test_call_private_in_rvalue_expr();
+  test_call_private_in_prvalue_expr();
+  test_call_private_in_xvalue_expr();
   test_call_private_in_lvalue_expr();
   test_access_private_static();
   test_access_private_static_const();
