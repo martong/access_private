@@ -126,6 +126,16 @@ void test_call_private_in_xvalue_expr() {
   ASSERT(res == 42);
 }
 
+// Uncomment to see error msg
+//class A2 {
+  //int m_f(int p) { return 14 * p; }
+//};
+//void test_call_private_different_types() {
+  //A2 a;
+  //int p = 3;
+  //auto res = call_private::m_f(a, p);
+//}
+
 ACCESS_PRIVATE_STATIC_FIELD(A, int, s_i)
 void test_access_private_static() {
   auto &i = access_private_static::A::s_i();
