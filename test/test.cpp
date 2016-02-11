@@ -45,39 +45,6 @@ void test_access_private_in_xvalue_expr() {
   ASSERT(i == 3);
 }
 
-ACCESS_PRIVATE_FUN(A, int(int), m_f)
-void test_call_private_in_lvalue_expr() {
-  A a;
-  int p = 3;
-  auto res = call_private::m_f(a, p);
-  ASSERT(res == 42);
-}
-void test_call_private_in_rvalue_expr() {
-  auto res = call_private::m_f(A{}, 3);
-  ASSERT(res == 42);
-}
-
-ACCESS_PRIVATE_STATIC_FIELD(A, int, s_i)
-void test_access_private_static() {
-  auto &i = access_private_static::A::s_i();
-  ASSERT(i == 404);
-  ++i;
-  ASSERT(A::get_s_i() == 405);
-}
-
-ACCESS_PRIVATE_STATIC_FIELD(A, const int, s_ci)
-void test_access_private_static_const() {
-  auto &i = access_private_static::A::s_ci();
-  static_assert(std::is_same<const int &, decltype(i)>::value, "");
-  ASSERT(i == 403);
-}
-
-ACCESS_PRIVATE_STATIC_FUN(A, int(int), s_f)
-void test_call_private_static() {
-  auto l = call_private_static::A::s_f(4);
-  ASSERT(l == 5);
-}
-
 namespace NS {
 class B {
   int m_i = 3;
@@ -142,21 +109,53 @@ void test_access_private_template_field() {
   ASSERT(i == 3);
 }
 
+ACCESS_PRIVATE_FUN(A, int(int), m_f)
+void test_call_private_in_lvalue_expr() {
+  A a;
+  int p = 3;
+  auto res = call_private::m_f(a, p);
+  ASSERT(res == 42);
+}
+void test_call_private_in_rvalue_expr() {
+  auto res = call_private::m_f(A{}, 3);
+  ASSERT(res == 42);
+}
+
+ACCESS_PRIVATE_STATIC_FIELD(A, int, s_i)
+void test_access_private_static() {
+  auto &i = access_private_static::A::s_i();
+  ASSERT(i == 404);
+  ++i;
+  ASSERT(A::get_s_i() == 405);
+}
+
+ACCESS_PRIVATE_STATIC_FIELD(A, const int, s_ci)
+void test_access_private_static_const() {
+  auto &i = access_private_static::A::s_ci();
+  static_assert(std::is_same<const int &, decltype(i)>::value, "");
+  ASSERT(i == 403);
+}
+
+ACCESS_PRIVATE_STATIC_FUN(A, int(int), s_f)
+void test_call_private_static() {
+  auto l = call_private_static::A::s_f(4);
+  ASSERT(l == 5);
+}
 
 int main() {
   test_access_private_in_lvalue_expr();
   test_access_private_in_prvalue_expr();
   test_access_private_in_xvalue_expr();
-  test_call_private_in_rvalue_expr();
-  test_call_private_in_lvalue_expr();
-  test_access_private_static();
-  test_access_private_static_const();
-  test_call_private_static();
   test_access_private_in_class_in_namespace();
   test_access_private_in_nested_class();
   test_access_private_const_member();
   test_access_private_const_object();
   test_access_private_template_field();
+  test_call_private_in_rvalue_expr();
+  test_call_private_in_lvalue_expr();
+  test_access_private_static();
+  test_access_private_static_const();
+  test_call_private_static();
   printf("OK\n");
   return 0;
 }
