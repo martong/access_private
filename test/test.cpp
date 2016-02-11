@@ -35,8 +35,13 @@ void test_access_private_in_lvalue_expr() {
   ++i;
   ASSERT(a.get_m_i() == 4);
 }
-void test_access_private_in_rvalue_expr() {
+void test_access_private_in_prvalue_expr() {
   auto i = access_private::m_i(A{});
+  ASSERT(i == 3);
+}
+void test_access_private_in_xvalue_expr() {
+  A a;
+  auto i = access_private::m_i(std::move(a));
   ASSERT(i == 3);
 }
 
@@ -140,7 +145,8 @@ void test_access_private_template_field() {
 
 int main() {
   test_access_private_in_lvalue_expr();
-  test_access_private_in_rvalue_expr();
+  test_access_private_in_prvalue_expr();
+  test_access_private_in_xvalue_expr();
   test_call_private_in_rvalue_expr();
   test_call_private_in_lvalue_expr();
   test_access_private_static();
