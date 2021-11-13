@@ -53,6 +53,7 @@ I have done tests for the following compilers:
   * 5.1.0
   * 4.8.4
   * 4.7.4
+* MSVC
 
 Test code is compiled with -std=c++11 .
 
