@@ -60,3 +60,10 @@ Test code is compiled with -std=c++11 .
 # Future
 I think it would be filling a gap if we could have out-of-class friend declarations in C++, though the committee might not agree with me.
 Nevertheless, this can be implemented fairly easy, see https://github.com/martong/clang/tree/out-of-class_friend_attr .
+
+# Notes
+There is a [C++ std ISSUE](https://www.open-std.org/jtc1/sc22/wg21/docs/cwg_active.html#2118) that says: 
+> Stateful metaprogramming via friend injection techniques should be ill-formed
+
+The `::private_access_detail::private_access<...>` template class implements a friend function `get()`, which used after class definition.
+I am not sure, however, if that issue has been ever fixed.
