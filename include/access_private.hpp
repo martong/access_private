@@ -48,14 +48,15 @@ namespace {
        * members                                                               \
        */                                                                      \
       struct Tag {};                                                           \
-      /* Explicit instantiation */                                             \
-      template struct private_access<decltype(&Class::Name), &Class::Name,     \
-                                     Tag>;                                     \
       /* We can build the PtrType only with two aliases */                     \
       /* E.g. using PtrType = int(int) *; would be illformed */                \
       using PRIVATE_ACCESS_DETAIL_CONCATENATE(Alias_, Tag) = Type;             \
       using PRIVATE_ACCESS_DETAIL_CONCATENATE(PtrType_, Tag) =                 \
           PRIVATE_ACCESS_DETAIL_CONCATENATE(Alias_, Tag) PtrTypeKind;          \
+      /* Explicit instantiation */                                             \
+      template struct private_access<                                          \
+          PRIVATE_ACCESS_DETAIL_CONCATENATE(Alias_, Tag) (PtrTypeKind),        \
+          &Class::Name, Tag>;                                                  \
       /* Declare the friend function, now it is visible in namespace scope.    \
        * Note,                                                                 \
        * we could declare it inside the Tag type too, in that case ADL would   \
