@@ -168,6 +168,16 @@ class A3 {
   }
 };
 
+#if defined(__GNUC__)
+#define TEST_OVERLOADED_FUNCTIONS (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8))
+#elif defined(__clang__)
+#define TEST_OVERLOADED_FUNCTIONS (__clang_major__ >= 14)
+#else
+#define TEST_OVERLOADED_FUNCTIONS 1
+#endif
+
+#if TEST_OVERLOADED_FUNCTIONS
+
 ACCESS_PRIVATE_FUN(A3, int(int), m_f)
 ACCESS_PRIVATE_FUN(A3, int(int, int), m_f)
 void test_call_private_overloaded() {
@@ -186,6 +196,8 @@ void test_call_private_overloaded_static() {
   ASSERT(s == "HelloWorld");
 }
 
+#endif  // TEST_OVERLOADED_FUNCTIONS
+
 int main() {
   test_access_private_in_lvalue_expr();
   test_access_private_in_prvalue_expr();
@@ -201,8 +213,10 @@ int main() {
   test_access_private_static();
   test_access_private_static_const();
   test_call_private_static();
+#if TEST_OVERLOADED_FUNCTIONS
   test_call_private_overloaded();
   test_call_private_overloaded_static();
+#endif
   printf("OK\n");
   return 0;
 }
