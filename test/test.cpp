@@ -1,6 +1,7 @@
 #include "../include/access_private.hpp"
 #include <cstdio>
 #include <cstdlib>
+#include <string>
 
 #define ASSERT(CONDITION)                                                      \
   do                                                                           \
@@ -157,6 +158,46 @@ void test_call_private_static() {
   ASSERT(l == 5);
 }
 
+class A3 {
+  int m_i = 3;
+  int m_f(int x) { return x + m_i; }
+  int m_f(int x, int y) { return x + y * m_i; }
+  template <typename T, typename U>
+  static auto s_f(T t, U u) -> decltype(t + u) {
+    return t + u;
+  }
+};
+
+#if defined(__GNUC__)
+#define TEST_OVERLOADED_FUNCTIONS (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8))
+#elif defined(__clang__)
+#define TEST_OVERLOADED_FUNCTIONS (__clang_major__ >= 14)
+#else
+#define TEST_OVERLOADED_FUNCTIONS 1
+#endif
+
+#if TEST_OVERLOADED_FUNCTIONS
+
+ACCESS_PRIVATE_FUN(A3, int(int), m_f)
+ACCESS_PRIVATE_FUN(A3, int(int, int), m_f)
+void test_call_private_overloaded() {
+  auto res = call_private::m_f(A3(), 1);
+  ASSERT(res == 4);
+  res = call_private::m_f(A3(), 1, 2);
+  ASSERT(res == 7);
+}
+
+ACCESS_PRIVATE_STATIC_FUN(A3, int(char, int), s_f)
+ACCESS_PRIVATE_STATIC_FUN(A3, std::string(const char*, std::string), s_f)
+void test_call_private_overloaded_static() {
+  auto c = call_private_static::A3::s_f('A', 25);
+  ASSERT(c == 'Z');
+  auto s = call_private_static::A3::s_f("Hello", "World");
+  ASSERT(s == "HelloWorld");
+}
+
+#endif  // TEST_OVERLOADED_FUNCTIONS
+
 int main() {
   test_access_private_in_lvalue_expr();
   test_access_private_in_prvalue_expr();
@@ -172,6 +213,10 @@ int main() {
   test_access_private_static();
   test_access_private_static_const();
   test_call_private_static();
+#if TEST_OVERLOADED_FUNCTIONS
+  test_call_private_overloaded();
+  test_call_private_overloaded_static();
+#endif
   printf("OK\n");
   return 0;
 }

@@ -57,6 +57,8 @@ I have done tests for the following compilers:
 
 Test code is compiled with -std=c++11 .
 
+It requires GCC >=4.8 or clang >=14 to access private overloaded functions.
+
 # Future
 I think it would be filling a gap if we could have out-of-class friend declarations in C++, though the committee might not agree with me.
 Nevertheless, this can be implemented fairly easy, see https://github.com/martong/clang/tree/out-of-class_friend_attr .
