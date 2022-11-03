@@ -18,6 +18,7 @@ The C++ standard states that the relative order of members in a class with diffe
 ```c++
 class A {
   int m_i = 3;
+  int m_f(int p) { return 14 * p; }
 };
 
 ACCESS_PRIVATE_FIELD(A, int, m_i)
@@ -27,10 +28,19 @@ void foo() {
   auto &i = access_private::m_i(a);
   assert(i == 3);
 }
+
+ACCESS_PRIVATE_FUN(A, int(int), m_f)
+
+void bar() {
+  A a;
+  int p = 3;
+  auto res = call_private::m_f(a, p);
+  assert(res == 42);
+}
 ```
-You can also call private member functions and static private functions.
+You can call private member functions and static private functions.
 You can also access static private variables, if they are defined out-of-class.
-For detailed usage, please check `test.cpp`.
+For DETAILED USAGE and EXAMPLES, please take a look [test.cpp](https://github.com/martong/access_private/blob/master/test/test.cpp)!
 
 # How does it work?
 The ISO C++ standard specifies that there is no access check in case of explicit
@@ -44,6 +54,7 @@ References:
 
 * We cannot access private types. We cannot access private members of private nested types either.
 * We cannot call private constructors / destructors.
+* We cannot access the default arguments of the private functions.
 * We have a link time error in case of only in-class declared `const static` variables. That's because we'd take the address of that, and if that is not defined (i.e the compiler do a compile-time insert of the const value), we'd have an undefined symbol.
 
 # Compilers
