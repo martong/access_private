@@ -242,7 +242,7 @@ void test_call_private_overloaded_static() {
   ASSERT(s == "HelloWorld");
 }
 
-/*
+/* FIXME: overloaded functions with the same amount of parameters are ambiguous
 ACCESS_PRIVATE_STATIC_FUN(A3, char(int), s_cxf)
 ACCESS_PRIVATE_STATIC_FUN(A3, const char*(float), s_cxf)
 void test_call_private_overloaded_static_constexpr() {
