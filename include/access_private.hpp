@@ -20,7 +20,7 @@ namespace {
     template <typename PtrType, PtrType PtrValue, typename TagType>
     struct private_access {
       // Normal lookup cannot find in-class defined (inline) friend functions.
-      friend PtrType get(TagType) { return PtrValue; }
+      constexpr friend PtrType get(TagType) { return PtrValue; }
     };
 
   } // namespace private_access_detail
@@ -64,7 +64,7 @@ namespace {
        * the declaration. By choosing to declare it here, the Tag type remains \
        * a                                                                     \
        * simple tag type, it has no other responsibilities. */                 \
-      PRIVATE_ACCESS_DETAIL_CONCATENATE(PtrType_, Tag) get(Tag);               \
+      constexpr PRIVATE_ACCESS_DETAIL_CONCATENATE(PtrType_, Tag) get(Tag);     \
     }                                                                          \
   }
 
@@ -72,15 +72,20 @@ namespace {
   PRIVATE_ACCESS_DETAIL_ACCESS_PRIVATE(Tag, Class, Type, Name, Class::*)       \
   namespace {                                                                  \
     namespace access_private {                                                 \
-      Type &Name(Class &&t) { return t.*get(private_access_detail::Tag{}); }   \
-      Type &Name(Class &t) { return t.*get(private_access_detail::Tag{}); }    \
+      constexpr Type &Name(Class &&t) {                                        \
+        return t.*get(private_access_detail::Tag{});                           \
+      }                                                                        \
+      constexpr Type &Name(Class &t) {                                         \
+        return t.*get(private_access_detail::Tag{});                           \
+      }                                                                        \
       /* The following usings are here to avoid duplicate const qualifier      \
        * warnings                                                              \
        */                                                                      \
       using PRIVATE_ACCESS_DETAIL_CONCATENATE(X, Tag) = Type;                  \
       using PRIVATE_ACCESS_DETAIL_CONCATENATE(Y, Tag) =                        \
           const PRIVATE_ACCESS_DETAIL_CONCATENATE(X, Tag);                     \
-      PRIVATE_ACCESS_DETAIL_CONCATENATE(Y, Tag) & Name(const Class &t) {       \
+      constexpr PRIVATE_ACCESS_DETAIL_CONCATENATE(Y, Tag) &                    \
+          Name(const Class &t) {                                               \
         return t.*get(private_access_detail::Tag{});                           \
       }                                                                        \
     }                                                                          \
@@ -96,11 +101,11 @@ namespace {
                 std::enable_if_t<std::is_same<std::remove_reference_t<Obj>,    \
                                               Class>::value> * = nullptr,      \
                 typename... Args>                                              \
-      auto Name(Obj &&o, Args &&... args) -> decltype(                         \
-          (std::forward<Obj>(o).*                                              \
-           get(private_access_detail::Tag{}))(std::forward<Args>(args)...)) {  \
-        return (std::forward<Obj>(o).*get(private_access_detail::Tag{}))(      \
-            std::forward<Args>(args)...);                                      \
+      constexpr auto Name(Obj &&o, Args &&... args) -> decltype((              \
+          static_cast<Obj &&>(o).*                                             \
+          get(private_access_detail::Tag{}))(static_cast<Args &&>(args)...)) { \
+        return (static_cast<Obj &&>(o).*get(private_access_detail::Tag{}))(    \
+            static_cast<Args &&>(args)...);                                    \
       }                                                                        \
     }                                                                          \
   }
@@ -111,7 +116,7 @@ namespace {
   namespace {                                                                  \
     namespace access_private_static {                                          \
       namespace Class {                                                        \
-        Type &Name() { return *get(private_access_detail::Tag{}); }            \
+        constexpr Type &Name() { return *get(private_access_detail::Tag{}); }  \
       }                                                                        \
     }                                                                          \
   }
@@ -123,10 +128,10 @@ namespace {
     namespace call_private_static {                                            \
       namespace Class {                                                        \
         template <typename... Args>                                            \
-        auto Name(Args &&... args) -> decltype(                                \
-            get(private_access_detail::Tag{})(std::forward<Args>(args)...)) {  \
+        constexpr auto Name(Args &&... args) -> decltype(get(                  \
+            private_access_detail::Tag{})(static_cast<Args &&>(args)...)) {    \
           return get(private_access_detail::Tag{})(                            \
-              std::forward<Args>(args)...);                                    \
+              static_cast<Args &&>(args)...);                                  \
         }                                                                      \
       }                                                                        \
     }                                                                          \
