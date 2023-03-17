@@ -101,7 +101,7 @@ namespace {
                 std::enable_if_t<std::is_same<std::remove_reference_t<Obj>,    \
                                               Class>::value> * = nullptr,      \
                 typename... Args>                                              \
-      constexpr auto Name(Obj &&o, Args &&...args) -> decltype((               \
+      constexpr auto Name(Obj &&o, Args &&... args) -> decltype((              \
           static_cast<Obj &&>(o).*                                             \
           get(private_access_detail::Tag{}))(static_cast<Args &&>(args)...)) { \
         return (static_cast<Obj &&>(o).*get(private_access_detail::Tag{}))(    \
@@ -128,7 +128,7 @@ namespace {
     namespace call_private_static {                                            \
       namespace Class {                                                        \
         template <typename... Args>                                            \
-        constexpr auto Name(Args &&...args) -> decltype(get(                   \
+        constexpr auto Name(Args &&... args) -> decltype(get(                  \
             private_access_detail::Tag{})(static_cast<Args &&>(args)...)) {    \
           return get(private_access_detail::Tag{})(                            \
               static_cast<Args &&>(args)...);                                  \
