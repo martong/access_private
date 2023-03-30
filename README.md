@@ -53,7 +53,7 @@ References:
 # Limitations
 
 * We cannot access private types. We cannot access private members of private nested types either.
-* We can't access private members that are references. (See #12)
+* We can't access private members that are references. (See this [issue](https://github.com/martong/access_private/issues/12).)
 * We cannot call private constructors / destructors.
 * We cannot access the default arguments of the private functions.
 * We have a link time error in case of only in-class declared `const static` variables. That's because we'd take the address of that, and if that is not defined (i.e the compiler do a compile-time insert of the const value), we'd have an undefined symbol.
