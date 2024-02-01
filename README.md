@@ -14,6 +14,8 @@ Why not use `#define private public`?
 Because that's undefined behaviour.
 The C++ standard states that the relative order of members in a class with different access specifiers is undefined.
 
+*This is a C++11/C++14 libary. There is a [newer fork](https://github.com/schaumb/access_private_20) which exploits C++20, works without macros and has fewer limitations.*
+
 # Usage
 ```c++
 class A {
@@ -72,8 +74,7 @@ Test code is compiled with -std=c++11 .
 It requires GCC >=4.8 or clang >=14 to access private overloaded functions.
 
 # Future
-I think it would be filling a gap if we could have out-of-class friend declarations in C++, though the committee might not agree with me.
-Nevertheless, this can be implemented fairly easy, see https://github.com/martong/clang/tree/out-of-class_friend_attr .
+I think it would be filling a gap if we could have out-of-class friend declarations in C++. This can be implemented fairly easy, see https://github.com/martong/clang/tree/out-of-class_friend_attr .
 
 # Notes
 There is a [C++ standard *issue*](https://www.open-std.org/jtc1/sc22/wg21/docs/cwg_active.html#2118) that says: 
